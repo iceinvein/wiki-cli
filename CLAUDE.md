@@ -15,8 +15,7 @@ bun run bin/wiki.ts      # Run CLI locally
 
 ## Environment
 
-Requires `ANTHROPIC_API_KEY` set in environment (Bun auto-loads `.env`).
-Override wiki data directory with `WIKI_HOME` (defaults to `~/.wiki/`).
+Requires Claude Code to be installed and authenticated. Override wiki data directory with `WIKI_HOME` (defaults to `~/.wiki/`).
 
 ## Architecture
 

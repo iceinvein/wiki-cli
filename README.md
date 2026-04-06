@@ -2,7 +2,11 @@
 
 A personal knowledge base that builds itself from your Claude Code sessions.
 
-Every time you have a Claude Code conversation where you learn something non-trivial — a design pattern, a gotcha, an architectural decision — wiki-cli extracts that knowledge and persists it as curated markdown pages in `~/.wiki/`.
+## Why
+
+You learn things in every Claude Code session — architectural trade-offs, debugging patterns, why a library works a certain way, gotchas that cost you hours. That knowledge lives in your conversation history and slowly disappears. You can't search it, you can't share it across projects, and you end up re-discovering the same things months later.
+
+wiki-cli fixes this. It watches your Claude Code sessions, extracts the non-trivial knowledge, and organizes it into a persistent, searchable markdown wiki. Over time, you build a second brain that grows just by doing your normal work — and Claude Code can query it too, so past lessons inform future sessions.
 
 ## How It Works
 
@@ -14,25 +18,27 @@ The killer feature is **auto-capture**: a `SessionEnd` hook runs after every Cla
 
 ```bash
 bun install
-export ANTHROPIC_API_KEY=sk-ant-...
+bun link        # Makes `wiki` available globally
 
 # Initialize the wiki and install the auto-capture hook
-bun run bin/wiki.ts init
+wiki init
 
 # That's it. Knowledge is captured automatically after each Claude Code session.
 # To manually add knowledge:
-bun run bin/wiki.ts ingest ./notes.md
-bun run bin/wiki.ts ingest https://example.com/article
-cat notes.txt | bun run bin/wiki.ts ingest -
+wiki ingest ./notes.md
+wiki ingest https://example.com/article
+cat notes.txt | wiki ingest -
 
 # Ask the wiki a question
-bun run bin/wiki.ts query "how does IPC work in electron"
+wiki query "how does IPC work in electron"
 
 # Check wiki health
-bun run bin/wiki.ts status
-bun run bin/wiki.ts lint
-bun run bin/wiki.ts lint --fix
+wiki status
+wiki lint
+wiki lint --fix
 ```
+
+> Requires Claude Code to be installed and authenticated. wiki-cli spawns Claude Code sessions under the hood.
 
 ## Commands
 
@@ -87,7 +93,6 @@ The `schema.md` file is injected into every agent prompt — editing it changes 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | — | Required. Bun auto-loads from `.env`. |
 | `WIKI_HOME` | `~/.wiki` | Override the wiki data directory. |
 
 ## Using with Claude Code
