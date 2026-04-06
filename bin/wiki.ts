@@ -4,6 +4,7 @@ import { initCommand } from '../src/commands/init'
 import { ingestCommand } from '../src/commands/ingest'
 import { queryCommand } from '../src/commands/query-cmd'
 import { lintCommand } from '../src/commands/lint'
+import { captureCommand } from '../src/commands/capture'
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -12,6 +13,7 @@ const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
   ingest: ingestCommand,
   query: queryCommand,
   lint: lintCommand,
+  capture: captureCommand,
 }
 
 async function main() {
