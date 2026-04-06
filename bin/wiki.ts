@@ -2,12 +2,16 @@
 
 import { initCommand } from '../src/commands/init'
 import { ingestCommand } from '../src/commands/ingest'
+import { queryCommand } from '../src/commands/query-cmd'
+import { lintCommand } from '../src/commands/lint'
 
 const [command, ...args] = process.argv.slice(2)
 
 const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
   init: initCommand,
   ingest: ingestCommand,
+  query: queryCommand,
+  lint: lintCommand,
 }
 
 async function main() {
