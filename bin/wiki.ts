@@ -1,11 +1,13 @@
 #!/usr/bin/env bun
 
 import { initCommand } from '../src/commands/init'
+import { ingestCommand } from '../src/commands/ingest'
 
 const [command, ...args] = process.argv.slice(2)
 
 const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
   init: initCommand,
+  ingest: ingestCommand,
 }
 
 async function main() {
