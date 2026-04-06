@@ -1,8 +1,12 @@
 #!/usr/bin/env bun
 
+import { initCommand } from '../src/commands/init'
+
 const [command, ...args] = process.argv.slice(2)
 
-const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {}
+const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
+  init: initCommand,
+}
 
 async function main() {
   if (!command || command === '--help') {
