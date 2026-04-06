@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
 export type IndexEntry = {
   name: string
   tags: string[]
@@ -57,4 +60,19 @@ export function matchPages(
 
 export function formatIndexEntry(entry: IndexEntry): string {
   return `- **${entry.name}** [${entry.tags.join(', ')}] — ${entry.summary}`
+}
+
+/** Load page contents by name from the pages directory. */
+export async function loadPages(
+  pagesDir: string,
+  names: string[],
+): Promise<Record<string, string>> {
+  const pages: Record<string, string> = {}
+  for (const name of names) {
+    const filePath = join(pagesDir, `${name}.md`)
+    if (existsSync(filePath)) {
+      pages[name] = await Bun.file(filePath).text()
+    }
+  }
+  return pages
 }

@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { schemaPath, indexPath, wikiHome, wikiPagesDir } from '../paths'
-import { parseIndex, matchPages } from '../index-parser'
+import { parseIndex, matchPages, loadPages } from '../index-parser'
 import { ingestPrompt } from '../prompts'
 import { runAgent } from '../agent'
 import { appendLog } from '../log'
@@ -46,7 +46,7 @@ export async function ingestCommand(args: string[]): Promise<void> {
   if (!source.startsWith('http')) {
     const entries = parseIndex(index)
     const relevant = matchPages(entries, sourceContent.slice(0, 2000))
-    pages = await loadPages(relevant.map((e) => e.name))
+    pages = await loadPages(wikiPagesDir(), relevant.map((e) => e.name))
   }
 
   console.log(`Ingesting ${sourceLabel}...`)
@@ -86,16 +86,4 @@ async function readStdin(): Promise<string> {
     chunks.push(decoder.decode(value))
   }
   return chunks.join('')
-}
-
-async function loadPages(names: string[]): Promise<Record<string, string>> {
-  const pagesDir = wikiPagesDir()
-  const pages: Record<string, string> = {}
-  for (const name of names) {
-    const filePath = join(pagesDir, `${name}.md`)
-    if (existsSync(filePath)) {
-      pages[name] = await Bun.file(filePath).text()
-    }
-  }
-  return pages
 }

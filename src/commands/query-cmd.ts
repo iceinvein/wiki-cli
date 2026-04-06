@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import { schemaPath, indexPath, wikiPagesDir, detectProjectName } from '../paths'
-import { parseIndex, matchPages } from '../index-parser'
+import { parseIndex, matchPages, loadPages } from '../index-parser'
 import { queryPrompt } from '../prompts'
 import { runAgent } from '../agent'
 
@@ -34,7 +33,7 @@ export async function queryCommand(args: string[]): Promise<void> {
     return
   }
 
-  const pages = await loadPages(relevant.map((e) => e.name))
+  const pages = await loadPages(wikiPagesDir(), relevant.map((e) => e.name))
 
   const prompt = queryPrompt({ schema, index, pages })
 
@@ -46,16 +45,4 @@ export async function queryCommand(args: string[]): Promise<void> {
   })
 
   console.log(result.text)
-}
-
-async function loadPages(names: string[]): Promise<Record<string, string>> {
-  const pagesDir = wikiPagesDir()
-  const pages: Record<string, string> = {}
-  for (const name of names) {
-    const filePath = join(pagesDir, `${name}.md`)
-    if (existsSync(filePath)) {
-      pages[name] = await Bun.file(filePath).text()
-    }
-  }
-  return pages
 }
