@@ -1,0 +1,4 @@
+- **electron-ipc-patterns** [electron, ipc, desktop] — Main↔Renderer communication via contextBridge, typed channels, permission flow
+- **zustand-store-design** [react, state, zustand] — Store slicing patterns, subscription optimization, middleware
+- **sqlite-wal-mode** [sqlite, database, performance] — WAL mode benefits, concurrent readers, checkpoint tuning
+- **bun-test-patterns** [bun, testing] — Bun test runner patterns, mocking, lifecycle hooks
