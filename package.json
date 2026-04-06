@@ -1,0 +1,15 @@
+{
+  "name": "wiki-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "wiki": "./bin/wiki.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.81"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.8.0"
+  }
+}
