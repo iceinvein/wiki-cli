@@ -60,7 +60,7 @@ wiki lint --fix
   "hooks": {
     "SessionEnd": [
       {
-        "matcher": {},
+        "matcher": "",
         "hooks": [{ "type": "command", "command": "wiki capture --auto" }]
       }
     ]

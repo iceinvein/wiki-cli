@@ -60,7 +60,7 @@ async function installHook(): Promise<void> {
   }
 
   sessionEndHooks.push({
-    matcher: {},
+    matcher: "",
     hooks: [
       {
         type: 'command',
