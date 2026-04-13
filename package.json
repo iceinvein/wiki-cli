@@ -5,8 +5,12 @@
   "bin": {
     "wiki": "./bin/wiki.ts"
   },
+  "scripts": {
+    "build": "bun build --compile bin/wiki.ts --outfile dist/wiki",
+    "install-bin": "bun run build && cp dist/wiki /usr/local/bin/wiki"
+  },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.81"
+    "@anthropic-ai/claude-agent-sdk": "^0.2.104"
   },
   "devDependencies": {
     "@types/bun": "latest",

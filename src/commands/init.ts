@@ -50,9 +50,12 @@ async function installHook(): Promise<void> {
   const hooks = (settings.hooks ?? {}) as Record<string, unknown[]>
   const sessionEndHooks = (hooks.SessionEnd ?? []) as Record<string, unknown>[]
 
-  const alreadyInstalled = sessionEndHooks.some(
-    (h) => typeof h.command === 'string' && (h.command as string).includes('wiki capture')
-  )
+  const alreadyInstalled = sessionEndHooks.some((h) => {
+    const hooksList = (h.hooks ?? []) as Record<string, unknown>[]
+    return hooksList.some(
+      (inner) => typeof inner.command === 'string' && (inner.command as string).includes('wiki capture')
+    )
+  })
 
   if (alreadyInstalled) {
     console.log('  Auto-capture hook already installed.')
@@ -64,7 +67,7 @@ async function installHook(): Promise<void> {
     hooks: [
       {
         type: 'command',
-        command: 'wiki capture --auto',
+        command: '/usr/local/bin/wiki capture --auto',
       },
     ],
   })

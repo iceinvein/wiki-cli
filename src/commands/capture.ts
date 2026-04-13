@@ -5,7 +5,7 @@ import { readdir } from 'node:fs/promises'
 import { schemaPath, indexPath, wikiHome, wikiPagesDir } from '../paths'
 import { parseIndex, matchPages, loadPages } from '../index-parser'
 import { triagePrompt, capturePrompt } from '../prompts'
-import { runAgent } from '../agent'
+import { runAgent, type AgentResult } from '../agent'
 import { appendLog, readLog } from '../log'
 import {
   findLatestSession,
@@ -52,8 +52,7 @@ export async function captureCommand(args: string[]): Promise<void> {
   const substantiveCount = countSubstantiveMessages(messages)
 
   if (substantiveCount < 5) {
-    if (isAuto) return
-    console.log(`Session too short (${substantiveCount} messages). Skipping.`)
+    if (!isAuto) console.log(`Session too short (${substantiveCount} messages). Skipping.`)
     await appendLog(capturesLog, { sessionFile, worthy: false, reason: 'too_short' })
     return
   }
@@ -66,19 +65,32 @@ export async function captureCommand(args: string[]): Promise<void> {
   const schema = await Bun.file(schemaPath()).text()
   const index = await Bun.file(indexPath()).text()
 
-  const triageResult = await runAgent({
-    systemPrompt: triagePrompt({ schema, index }),
-    userMessage: `Session transcript:\n\n${transcript}`,
-    tools: [],
-    maxTurns: 1,
-  })
+  let triageResult: AgentResult
+  try {
+    triageResult = await runAgent({
+      systemPrompt: triagePrompt({ schema, index }),
+      userMessage: `Session transcript:\n\n${transcript}`,
+      tools: [],
+      maxTurns: 1,
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (!isAuto) console.log(`Triage agent failed: ${message}`)
+    await appendLog(capturesLog, {
+      sessionFile,
+      worthy: false,
+      reason: 'agent_error',
+      phase: 'triage',
+      error: message,
+    })
+    return
+  }
 
   let triage: { worthy: boolean; topics: string[]; summary: string }
   try {
     triage = JSON.parse(triageResult.text)
   } catch {
-    if (isAuto) return
-    console.log('Triage returned invalid response. Skipping.')
+    if (!isAuto) console.log('Triage returned invalid response. Skipping.')
     await appendLog(capturesLog, { sessionFile, worthy: false, reason: 'invalid_triage' })
     return
   }
@@ -96,11 +108,26 @@ export async function captureCommand(args: string[]): Promise<void> {
   const relevant = matchPages(entries, triage.topics.join(' '))
   const pages = await loadPages(wikiPagesDir(), relevant.map((e) => e.name))
 
-  const result = await runAgent({
-    systemPrompt: capturePrompt({ schema, index, pages }, triage.summary),
-    userMessage: `Session transcript:\n\n${transcript}`,
-    tools: ['Read', 'Write', 'Glob'],
-  })
+  let result: AgentResult
+  try {
+    result = await runAgent({
+      systemPrompt: capturePrompt({ schema, index, pages }, triage.summary),
+      userMessage: `Session transcript:\n\n${transcript}`,
+      tools: ['Read', 'Write', 'Glob'],
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (!isAuto) console.log(`Extract agent failed: ${message}`)
+    await appendLog(capturesLog, {
+      sessionFile,
+      worthy: false,
+      reason: 'agent_error',
+      phase: 'extract',
+      topics: triage.topics,
+      error: message,
+    })
+    return
+  }
 
   await appendLog(capturesLog, {
     sessionFile,

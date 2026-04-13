@@ -1,6 +1,20 @@
 import { query, type Options } from '@anthropic-ai/claude-agent-sdk'
 import { wikiHome } from './paths'
 
+let cachedClaudePath: string | undefined
+
+function resolveClaudePath(): string {
+  if (cachedClaudePath) return cachedClaudePath
+  const path = Bun.which('claude')
+  if (!path) {
+    throw new Error(
+      "Claude Code CLI not found on PATH. Install it and ensure 'claude' is on PATH, or set CLAUDE_CLI_PATH."
+    )
+  }
+  cachedClaudePath = path
+  return path
+}
+
 type AgentCallOptions = {
   /** System prompt for the agent */
   systemPrompt: string
@@ -14,7 +28,7 @@ type AgentCallOptions = {
   maxTurns?: number
 }
 
-type AgentResult = {
+export type AgentResult = {
   text: string
   costUsd: number
 }
@@ -35,6 +49,7 @@ export async function runAgent(opts: AgentCallOptions): Promise<AgentResult> {
     permissionMode: 'acceptEdits',
     persistSession: false,
     maxTurns: opts.maxTurns ?? 20,
+    pathToClaudeCodeExecutable: process.env.CLAUDE_CLI_PATH ?? resolveClaudePath(),
     agent: 'wiki-curator',
     agents: {
       'wiki-curator': {
